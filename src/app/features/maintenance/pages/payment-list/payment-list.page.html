@@ -1,0 +1,170 @@
+<div class="p-6">
+  <!-- Tabs -->
+  <app-maintenance-tabs />
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-base-content">Pagos</h1>
+      <p class="text-base-content/50 mt-1">Registro y aprobacion de pagos de mantenimiento</p>
+    </div>
+    <button class="btn btn-primary gap-2" (click)="onCreate()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+      <span class="hidden sm:inline">Registrar pago</span>
+    </button>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Cuota</th>
+                <th>Unidad</th>
+                <th>Monto</th>
+                <th>Periodo</th>
+                <th>Fecha de pago</th>
+                <th>Estado</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1, 2, 3, 4, 5]; track i) {
+                <tr>
+                  <td><div class="skeleton h-4 w-32"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-32"></div></td>
+                  <td><div class="skeleton h-4 w-24"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-16"></div></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else if (payments().length === 0) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body items-center text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-base-content/15 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-base-content/60">Sin pagos registrados</h3>
+        <p class="text-base-content/40 text-sm mt-1 max-w-sm">
+          Registra un pago para una cuota de mantenimiento. Los pagos quedan pendientes hasta ser aprobados por un administrador.
+        </p>
+        <button class="btn btn-primary btn-sm mt-4" (click)="onCreate()">
+          Registrar primer pago
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Data table -->
+  @else {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Cuota</th>
+                <th>Unidad</th>
+                <th>Monto</th>
+                <th>Periodo</th>
+                <th>Fecha de pago</th>
+                <th>Estado</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (payment of payments(); track payment.id) {
+                <tr class="hover:bg-base-200/50 cursor-pointer" (click)="onReview(payment)">
+                  <td>
+                    <span class="font-medium">{{ payment.maintenanceFeeName }}</span>
+                  </td>
+                  <td class="text-sm">
+                    {{ payment.unitName ?? 'N/A' }}
+                  </td>
+                  <td class="font-mono font-medium">
+                    {{ payment.amount | currency:'USD':'symbol':'1.2-2' }}
+                  </td>
+                  <td class="text-base-content/50 text-sm">
+                    {{ payment.periodStart | date:'MM/yyyy' }} - {{ payment.periodEnd | date:'MM/yyyy' }}
+                  </td>
+                  <td class="text-base-content/50 text-sm">
+                    {{ payment.paymentDate | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    <span class="badge {{ getStatusBadge(payment.status) }} badge-sm">
+                      {{ getStatusLabel(payment.status) }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="flex gap-1" (click)="$event.stopPropagation()">
+                      <button
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Ver detalle"
+                        (click)="onReview(payment)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
+                      @if (payment.status === 'PENDING') {
+                        <button
+                          class="btn btn-ghost btn-xs btn-square text-error"
+                          title="Eliminar"
+                          (click)="onDeleteRequest(payment)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="px-4 pb-4">
+          <app-pagination
+            [pageNumber]="pageNumber()"
+            [pageSize]="pageSize()"
+            [totalCount]="totalCount()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Payment form modal -->
+  <app-payment-form (saved)="onFormSaved()" />
+
+  <!-- Payment review modal -->
+  <app-payment-review (reviewed)="onReviewed()" />
+
+  <!-- Delete confirmation -->
+  <app-confirm-dialog
+    title="Eliminar pago"
+    message="Esta seguro de que desea eliminar este pago? Esta accion no se puede deshacer."
+    confirmText="Eliminar"
+    (confirmed)="onDeleteConfirmed()"
+  />
+</div>
