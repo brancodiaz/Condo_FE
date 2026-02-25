@@ -1,0 +1,148 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+  <div class="card bg-base-100 w-full max-w-md shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl font-bold justify-center mb-2">Crear Cuenta</h2>
+      <p class="text-center text-base-content/60 mb-6">Regístrate para comenzar.</p>
+
+      @if (success()) {
+        <div role="alert" class="alert alert-success">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <div>
+            <p class="font-semibold">¡Registro exitoso!</p>
+            <p class="text-sm">Revisa tu correo electrónico para verificar tu cuenta.</p>
+          </div>
+        </div>
+        <p class="text-center text-sm mt-4">
+          <a routerLink="/auth/login" class="link link-primary">Volver a Iniciar Sesión</a>
+        </p>
+      } @else {
+        @if (errorMessage()) {
+          <div role="alert" class="alert alert-error mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label" for="firstName"><span class="label-text">Nombre</span></label>
+              <input
+                id="firstName"
+                type="text"
+                formControlName="firstName"
+                class="input input-bordered w-full"
+                [class.input-error]="form.controls.firstName.touched && form.controls.firstName.invalid"
+                placeholder="Juan"
+                autocomplete="given-name"
+              />
+              @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+                <label class="label"><span class="label-text-alt text-error">Obligatorio</span></label>
+              }
+            </div>
+
+            <div class="form-control">
+              <label class="label" for="lastName"><span class="label-text">Apellido</span></label>
+              <input
+                id="lastName"
+                type="text"
+                formControlName="lastName"
+                class="input input-bordered w-full"
+                [class.input-error]="form.controls.lastName.touched && form.controls.lastName.invalid"
+                placeholder="Pérez"
+                autocomplete="family-name"
+              />
+              @if (form.controls.lastName.touched && form.controls.lastName.hasError('required')) {
+                <label class="label"><span class="label-text-alt text-error">Obligatorio</span></label>
+              }
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label class="label" for="email"><span class="label-text">Correo electrónico</span></label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              class="input input-bordered w-full"
+              [class.input-error]="form.controls.email.touched && form.controls.email.invalid"
+              placeholder="tu@ejemplo.com"
+              autocomplete="email"
+            />
+            @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+              <label class="label"><span class="label-text-alt text-error">El correo electrónico es obligatorio</span></label>
+            } @else if (form.controls.email.touched && form.controls.email.hasError('email')) {
+              <label class="label"><span class="label-text-alt text-error">Ingresa un correo electrónico válido</span></label>
+            }
+          </div>
+
+          <div class="form-control">
+            <label class="label" for="password"><span class="label-text">Contraseña</span></label>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              class="input input-bordered w-full"
+              [class.input-error]="form.controls.password.touched && form.controls.password.invalid"
+              placeholder="Crea una contraseña segura"
+              autocomplete="new-password"
+            />
+            @if (form.controls.password.value) {
+              <div class="mt-2">
+                <div class="flex gap-1">
+                  @for (i of [1, 2, 3, 4, 5]; track i) {
+                    <div class="h-1 flex-1 rounded-full {{ i <= passwordStrength() ? strengthColor() : 'bg-base-300' }}"></div>
+                  }
+                </div>
+                <span class="text-xs text-base-content/60 mt-1">{{ strengthLabel() }}</span>
+              </div>
+            }
+            @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+              <label class="label"><span class="label-text-alt text-error">La contraseña es obligatoria</span></label>
+            } @else if (form.controls.password.touched && form.controls.password.hasError('strongPassword')) {
+              <label class="label"><span class="label-text-alt text-error">Debe tener 8+ caracteres con mayúscula, minúscula, número y carácter especial</span></label>
+            }
+          </div>
+
+          <div class="form-control">
+            <label class="label" for="passwordConfirmation"><span class="label-text">Confirmar Contraseña</span></label>
+            <input
+              id="passwordConfirmation"
+              type="password"
+              formControlName="passwordConfirmation"
+              class="input input-bordered w-full"
+              [class.input-error]="form.controls.passwordConfirmation.touched && form.controls.passwordConfirmation.invalid"
+              placeholder="Confirma tu contraseña"
+              autocomplete="new-password"
+            />
+            @if (form.controls.passwordConfirmation.touched && form.controls.passwordConfirmation.hasError('required')) {
+              <label class="label"><span class="label-text-alt text-error">Confirma tu contraseña</span></label>
+            } @else if (form.controls.passwordConfirmation.touched && form.controls.passwordConfirmation.hasError('passwordMismatch')) {
+              <label class="label"><span class="label-text-alt text-error">Las contraseñas no coinciden</span></label>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-full"
+            [disabled]="loading()"
+          >
+            @if (loading()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            }
+            Crear Cuenta
+          </button>
+        </form>
+
+        <p class="text-center text-sm mt-4">
+          ¿Ya tienes una cuenta?
+          <a routerLink="/auth/login" class="link link-primary">Inicia sesión</a>
+        </p>
+      }
+    </div>
+  </div>
+</div>

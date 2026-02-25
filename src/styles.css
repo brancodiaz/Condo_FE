@@ -4,3 +4,25 @@
 @plugin "daisyui" {
   themes: cupcake --default, dark;
 }
+
+/* Custom primary color (#4a6785) applied to both themes */
+[data-theme="cupcake"] {
+  --color-primary: oklch(50.364% 0.0455 220.017);
+  --color-primary-content: oklch(98% 0.005 220.017);
+}
+
+[data-theme="dark"] {
+  --color-primary: oklch(55% 0.0455 220.017);
+  --color-primary-content: oklch(98% 0.005 220.017);
+}
+
+/* Smooth transitions for theme switching */
+html {
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Ensure dynamically-applied Tailwind classes are included in the bundle */
+@utility safelist {
+  /* used by layout component when sidebar is visible */
+  @apply lg:ml-64;
+}

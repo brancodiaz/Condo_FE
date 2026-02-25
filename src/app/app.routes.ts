@@ -55,6 +55,20 @@ export const routes: Routes = [
                 (m) => m.MAINTENANCE_ROUTES,
               ),
           },
+          {
+            path: 'contacts',
+            loadChildren: () =>
+              import('./features/contacts/contacts.routes').then(
+                (m) => m.CONTACTS_ROUTES,
+              ),
+          },
+          {
+            path: 'notifications',
+            loadChildren: () =>
+              import('./features/notifications/notifications.routes').then(
+                (m) => m.NOTIFICATIONS_ROUTES,
+              ),
+          },
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
         ],
       },

@@ -1,18 +1,24 @@
 import { computed, Injectable, signal } from '@angular/core';
-import { Condominium } from '../../features/condos/models/condominium.model';
+import { CondominiumDetailed } from '../../features/condos/models/condominium.model';
 
 @Injectable({ providedIn: 'root' })
 export class CondoContextService {
-  readonly currentCondo = signal<Condominium | null>(null);
-  readonly currentCondoId = computed(() => this.currentCondo()?.id ?? null);
-  readonly currentRole = signal<string | null>(null);
+  readonly currentCondo = signal<CondominiumDetailed | null>(null);
+  readonly currentCondoId = computed(() => this.currentCondo()?.condominiumId ?? null);
+  readonly currentRole = computed(() => this.currentCondo()?.roleId ?? null);
+  readonly currentRoleName = computed(() => this.currentCondo()?.roleName ?? null);
 
-  setCondo(condo: Condominium): void {
+  /** True if user has ADMIN or board roles (PRESIDENT, SECRETARY, TREASURER) */
+  readonly isAdmin = computed(() => {
+    const role = this.currentRole();
+    return role === 'ADMIN' || role === 'PRESIDENT' || role === 'SECRETARY' || role === 'TREASURER';
+  });
+
+  setCondo(condo: CondominiumDetailed): void {
     this.currentCondo.set(condo);
   }
 
   clear(): void {
     this.currentCondo.set(null);
-    this.currentRole.set(null);
   }
 }

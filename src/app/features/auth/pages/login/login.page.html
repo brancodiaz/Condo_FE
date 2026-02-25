@@ -1,0 +1,85 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+  <div class="card bg-base-100 w-full max-w-md shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl font-bold justify-center mb-2">Iniciar Sesión</h2>
+      <p class="text-center text-base-content/60 mb-6">¡Bienvenido de nuevo! Inicia sesión para continuar.</p>
+
+      @if (errorMessage()) {
+        <div role="alert" class="alert alert-error mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+        <div class="form-control">
+          <label class="label" for="email">
+            <span class="label-text">Correo electrónico</span>
+          </label>
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="input input-bordered w-full"
+            [class.input-error]="form.controls.email.touched && form.controls.email.invalid"
+            placeholder="tu@ejemplo.com"
+            autocomplete="email"
+          />
+          @if (form.controls.email.touched && form.controls.email.hasError('required')) {
+            <label class="label"><span class="label-text-alt text-error">El correo electrónico es obligatorio</span></label>
+          } @else if (form.controls.email.touched && form.controls.email.hasError('email')) {
+            <label class="label"><span class="label-text-alt text-error">Ingresa un correo electrónico válido</span></label>
+          }
+        </div>
+
+        <div class="form-control">
+          <label class="label" for="password">
+            <span class="label-text">Contraseña</span>
+          </label>
+          <input
+            id="password"
+            type="password"
+            formControlName="password"
+            class="input input-bordered w-full"
+            [class.input-error]="form.controls.password.touched && form.controls.password.invalid"
+            placeholder="Ingresa tu contraseña"
+            autocomplete="current-password"
+          />
+          @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+            <label class="label"><span class="label-text-alt text-error">La contraseña es obligatoria</span></label>
+          }
+        </div>
+
+        <div class="flex items-center justify-between">
+          <label class="label cursor-pointer gap-2">
+            <input type="checkbox" formControlName="rememberMe" class="checkbox checkbox-sm" />
+            <span class="label-text">Recordarme</span>
+          </label>
+          <a routerLink="/auth/forgot-password" class="link link-primary text-sm">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+          [disabled]="loading()"
+        >
+          @if (loading()) {
+            <span class="loading loading-spinner loading-sm"></span>
+          }
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <div class="divider">O</div>
+
+      <div #googleBtn class="flex justify-center"></div>
+
+      <p class="text-center text-sm mt-4">
+        ¿No tienes una cuenta?
+        <a routerLink="/auth/register" class="link link-primary">Regístrate</a>
+      </p>
+    </div>
+  </div>
+</div>

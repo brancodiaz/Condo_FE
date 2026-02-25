@@ -1,0 +1,53 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+  <div class="card bg-base-100 w-full max-w-md shadow-xl">
+    <div class="card-body items-center text-center">
+      @switch (status()) {
+        @case ('verifying') {
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+          <h2 class="card-title text-2xl font-bold mt-4">Verificando Correo</h2>
+          <p class="text-base-content/60">Espera mientras verificamos tu dirección de correo electrónico...</p>
+        }
+        @case ('success') {
+          <div class="text-success text-5xl mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="card-title text-2xl font-bold">¡Correo Verificado!</h2>
+          <p class="text-base-content/60">Tu correo electrónico ha sido verificado exitosamente. Ya puedes iniciar sesión.</p>
+          <a routerLink="/auth/login" class="btn btn-primary mt-4">Ir a Iniciar Sesión</a>
+        }
+        @case ('error') {
+          <div class="text-error text-5xl mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 class="card-title text-2xl font-bold">Verificación Fallida</h2>
+          <p class="text-base-content/60">{{ errorMessage() }}</p>
+
+          @if (email() && !resendSuccess()) {
+            <button
+              class="btn btn-outline btn-primary mt-4"
+              (click)="resendVerification()"
+              [disabled]="resendLoading()"
+            >
+              @if (resendLoading()) {
+                <span class="loading loading-spinner loading-sm"></span>
+              }
+              Reenviar Correo de Verificación
+            </button>
+          }
+
+          @if (resendSuccess()) {
+            <div role="alert" class="alert alert-success mt-4">
+              <span>Se ha enviado un nuevo correo de verificación. Revisa tu bandeja de entrada.</span>
+            </div>
+          }
+
+          <a routerLink="/auth/login" class="link link-primary mt-4">Volver a Iniciar Sesión</a>
+        }
+      }
+    </div>
+  </div>
+</div>

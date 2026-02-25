@@ -1,6 +1,13 @@
 
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
 
+## Idioma de la Aplicación
+
+- El idioma de la aplicación es **español**.
+- Todo texto visible para el usuario (labels, placeholders, mensajes de error, tooltips, títulos, botones, etc.) DEBE estar en español.
+- Los comentarios en el código pueden estar en inglés o español, pero los strings de UI siempre en español.
+- Usar nombres descriptivos en español para las propiedades de UI cuando sea apropiado (ej: `mensajeError`, `titulo`).
+
 ## TypeScript Best Practices
 
 - Use strict type checking

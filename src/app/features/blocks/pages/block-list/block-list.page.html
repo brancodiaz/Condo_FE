@@ -1,0 +1,148 @@
+<div class="p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-base-content">Bloques</h1>
+      <p class="text-base-content/50 mt-1">Administra los bloques o edificios del condominio</p>
+    </div>
+    <button class="btn btn-primary gap-2" (click)="onCreate()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+      <span class="hidden sm:inline">Nuevo bloque</span>
+    </button>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Unidades</th>
+                <th>Fecha de creacion</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1, 2, 3, 4, 5]; track i) {
+                <tr>
+                  <td><div class="skeleton h-4 w-32"></div></td>
+                  <td><div class="skeleton h-4 w-12"></div></td>
+                  <td><div class="skeleton h-4 w-24"></div></td>
+                  <td><div class="skeleton h-4 w-16"></div></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else if (blocks().length === 0) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body items-center text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-base-content/15 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+        </svg>
+        <h3 class="text-lg font-semibold text-base-content/60">Sin bloques registrados</h3>
+        <p class="text-base-content/40 text-sm mt-1 max-w-sm">
+          Los bloques representan edificios o torres dentro del condominio. Crea el primero para empezar.
+        </p>
+        <button class="btn btn-primary btn-sm mt-4" (click)="onCreate()">
+          Crear primer bloque
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Data table -->
+  @else {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Unidades</th>
+                <th>Fecha de creacion</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (block of blocks(); track block.id) {
+                <tr class="hover:bg-base-200/50">
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded bg-primary/10 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                      </div>
+                      <span class="font-medium">{{ block.name }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-ghost badge-sm">{{ block.totalUnits }}</span>
+                  </td>
+                  <td class="text-base-content/50 text-sm">
+                    {{ block.createdAt | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Editar"
+                        (click)="onEdit(block)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        class="btn btn-ghost btn-xs btn-square text-error"
+                        title="Eliminar"
+                        (click)="onDeleteRequest(block)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="px-4 pb-4">
+          <app-pagination
+            [pageNumber]="pageNumber()"
+            [pageSize]="pageSize()"
+            [totalCount]="totalCount()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Form modal -->
+  <app-block-form (saved)="onFormSaved()" />
+
+  <!-- Delete confirmation -->
+  <app-confirm-dialog
+    title="Eliminar bloque"
+    message="Esta seguro de que desea eliminar este bloque? Esta accion no se puede deshacer."
+    confirmText="Eliminar"
+    (confirmed)="onDeleteConfirmed()"
+  />
+</div>
