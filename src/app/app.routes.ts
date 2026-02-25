@@ -63,6 +63,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'common-areas',
+            loadChildren: () =>
+              import('./features/common-areas/common-areas.routes').then(
+                (m) => m.COMMON_AREAS_ROUTES,
+              ),
+          },
+          {
             path: 'notifications',
             loadChildren: () =>
               import('./features/notifications/notifications.routes').then(

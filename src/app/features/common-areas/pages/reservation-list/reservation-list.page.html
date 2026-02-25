@@ -1,0 +1,191 @@
+<div class="p-6">
+  <!-- Tabs -->
+  <app-common-area-tabs />
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-base-content">Reservas</h1>
+      <p class="text-base-content/50 mt-1">Gestiona las reservas de areas comunes</p>
+    </div>
+    <div class="flex gap-2">
+      @if (pendingCount() > 0) {
+        <div class="badge badge-warning gap-1">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          {{ pendingCount() }} pendiente{{ pendingCount() > 1 ? 's' : '' }}
+        </div>
+      }
+      <button class="btn btn-primary gap-2" (click)="onCreate()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        </svg>
+        <span class="hidden sm:inline">Nueva reserva</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Fecha</th>
+                <th>Horario</th>
+                <th>Reservado por</th>
+                <th>Estado</th>
+                <th>Costo</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1, 2, 3, 4, 5]; track i) {
+                <tr>
+                  <td><div class="skeleton h-4 w-28"></div></td>
+                  <td><div class="skeleton h-4 w-24"></div></td>
+                  <td><div class="skeleton h-4 w-28"></div></td>
+                  <td><div class="skeleton h-4 w-28"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-16"></div></td>
+                  <td><div class="skeleton h-4 w-16"></div></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else if (reservations().length === 0) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body items-center text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-base-content/15 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-base-content/60">Sin reservas registradas</h3>
+        <p class="text-base-content/40 text-sm mt-1 max-w-sm">
+          Reserva areas comunes como piscinas, salones de eventos, gimnasios, etc.
+        </p>
+        <button class="btn btn-primary btn-sm mt-4" (click)="onCreate()">
+          Crear primera reserva
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Data table -->
+  @else {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Area</th>
+                <th>Fecha</th>
+                <th>Horario</th>
+                <th>Reservado por</th>
+                <th>Estado</th>
+                <th>Costo</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (reservation of reservations(); track reservation.id) {
+                <tr class="hover:bg-base-200/50">
+                  <td>
+                    <span class="font-medium">{{ reservation.commonAreaName }}</span>
+                  </td>
+                  <td class="text-sm">
+                    {{ reservation.reservationDate }}
+                  </td>
+                  <td class="text-sm font-mono">
+                    {{ reservation.startTime }} - {{ reservation.endTime }}
+                  </td>
+                  <td class="text-sm text-base-content/50">
+                    {{ reservation.reservedByUserName }}
+                  </td>
+                  <td>
+                    <span class="badge {{ getStatusBadge(reservation.status) }} badge-sm">
+                      {{ getStatusLabel(reservation.status) }}
+                    </span>
+                  </td>
+                  <td class="text-sm">
+                    {{ reservation.costAmount ?? '-' }}
+                  </td>
+                  <td>
+                    <div class="flex gap-1">
+                      @if (reservation.status === 'PENDING') {
+                        <button
+                          class="btn btn-ghost btn-xs btn-square"
+                          title="Revisar"
+                          (click)="onReview(reservation)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        </button>
+                      }
+                      @if (reservation.status === 'PENDING' || reservation.status === 'APPROVED') {
+                        <button
+                          class="btn btn-ghost btn-xs btn-square text-warning"
+                          title="Cancelar"
+                          (click)="onCancelRequest(reservation)"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      }
+                      <button
+                        class="btn btn-ghost btn-xs btn-square text-error"
+                        title="Eliminar"
+                        (click)="onDeleteRequest(reservation)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="px-4 pb-4">
+          <app-pagination
+            [pageNumber]="pageNumber()"
+            [pageSize]="pageSize()"
+            [totalCount]="totalCount()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Reservation form modal -->
+  <app-reservation-form (saved)="onFormSaved()" />
+
+  <!-- Reservation review modal -->
+  <app-reservation-review (reviewed)="onReviewed()" />
+
+  <!-- Confirmation dialog -->
+  <app-confirm-dialog
+    [title]="confirmTitle"
+    [message]="confirmMessage"
+    [confirmText]="confirmText"
+    (confirmed)="onConfirmed()"
+  />
+</div>
