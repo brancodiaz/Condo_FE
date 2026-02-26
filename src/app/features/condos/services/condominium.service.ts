@@ -1,7 +1,14 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { CondominiumDetailed, PaginatedResponse } from '../models/condominium.model';
+import {
+  CondominiumDetailed,
+  CondominiumResponse,
+  CreateCondominiumRequest,
+  UpdateCondominiumRequest,
+  PaginatedResponse,
+} from '../models/condominium.model';
 
 @Injectable({ providedIn: 'root' })
 export class CondominiumService {
@@ -26,5 +33,21 @@ export class CondominiumService {
           this.loading.set(false);
         },
       });
+  }
+
+  getById(id: string): Observable<CondominiumResponse> {
+    return this.http.get<CondominiumResponse>(`${this.apiUrl}/${id}`);
+  }
+
+  create(request: CreateCondominiumRequest): Observable<CondominiumResponse> {
+    return this.http.post<CondominiumResponse>(this.apiUrl, request);
+  }
+
+  update(id: string, request: UpdateCondominiumRequest): Observable<void> {
+    return this.http.put<void>(`${this.apiUrl}/${id}`, request);
+  }
+
+  delete(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

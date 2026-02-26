@@ -1,16 +1,17 @@
-import { Component, effect, inject, OnInit } from '@angular/core';
+import { Component, effect, inject, OnInit, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/auth/services/auth.service';
 import { CondoContextService } from '../../../core/services/condo-context.service';
 import { CondominiumService } from '../services/condominium.service';
 import { CondoCardComponent } from '../components/condo-card/condo-card.component';
 import { CondoActionsComponent } from '../components/condo-actions/condo-actions.component';
+import { CondoFormComponent } from '../components/condo-form/condo-form.component';
 import { CondominiumDetailed } from '../models/condominium.model';
 
 @Component({
   selector: 'app-condo-shell',
   standalone: true,
-  imports: [CondoCardComponent, CondoActionsComponent],
+  imports: [CondoCardComponent, CondoActionsComponent, CondoFormComponent],
   template: `
     <div class="p-6 md:p-10">
       <div class="max-w-3xl mx-auto">
@@ -57,6 +58,8 @@ import { CondominiumDetailed } from '../models/condominium.model';
           (create)="onCreateCondo()"
           (join)="onJoinCondo()"
         />
+
+        <app-condo-form (saved)="onCondoSaved()" />
       </div>
     </div>
   `,
@@ -67,6 +70,8 @@ export class CondoShellComponent implements OnInit {
   private readonly condoContext = inject(CondoContextService);
   private readonly router = inject(Router);
   private autoRedirected = false;
+
+  private readonly condoForm = viewChild(CondoFormComponent);
 
   readonly userName = () => this.authService.currentUser()?.firstName ?? '';
   readonly condominiums = this.condoService.condominiums;
@@ -93,7 +98,11 @@ export class CondoShellComponent implements OnInit {
   }
 
   onCreateCondo(): void {
-    // TODO: navigate to create condominium page
+    this.condoForm()?.openCreate();
+  }
+
+  onCondoSaved(): void {
+    this.condoService.loadCondominiums();
   }
 
   onJoinCondo(): void {

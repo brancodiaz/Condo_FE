@@ -19,6 +19,32 @@ export interface CondominiumDetailed {
   roleName: string;
 }
 
+export interface CondominiumResponse {
+  id: string;
+  createdAt: string;
+  name: string;
+  address: string;
+  country: string;
+  totalUnits: number;
+  planId: string;
+  subscriptionExpiresAt: string | null;
+  includeBlocks: boolean;
+}
+
+export interface CreateCondominiumRequest {
+  name: string;
+  address: string;
+  country: string;
+  hasBlocks: boolean;
+}
+
+export interface UpdateCondominiumRequest {
+  name: string;
+  address: string;
+  country: string;
+  hasBlocks: boolean;
+}
+
 export interface PaginatedResponse<T> {
   items: T[];
   pageNumber: number;
