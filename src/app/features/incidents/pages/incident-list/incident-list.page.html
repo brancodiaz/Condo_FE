@@ -1,0 +1,229 @@
+<div class="p-4 md:p-6">
+  <!-- Tabs -->
+  <app-incident-tabs />
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-base-content">Incidentes</h1>
+      <p class="text-base-content/50 mt-1 text-sm sm:text-base">Gestiona los incidentes reportados en el condominio</p>
+    </div>
+    <button class="btn btn-primary gap-2" (click)="onCreate()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+      <span class="hidden sm:inline">Nuevo incidente</span>
+    </button>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto hidden md:block">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Titulo</th>
+                <th>Tipo</th>
+                <th>Reportado por</th>
+                <th>Asignado a</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th class="w-28">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1, 2, 3, 4, 5]; track i) {
+                <tr>
+                  <td><div class="skeleton h-4 w-40"></div></td>
+                  <td><div class="skeleton h-4 w-24"></div></td>
+                  <td><div class="skeleton h-4 w-28"></div></td>
+                  <td><div class="skeleton h-4 w-28"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                  <td><div class="skeleton h-4 w-20"></div></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="md:hidden space-y-3 p-4">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="card bg-base-100 border border-base-300">
+              <div class="card-body p-4 space-y-2">
+                <div class="skeleton h-4 w-3/4"></div>
+                <div class="skeleton h-3 w-1/2"></div>
+                <div class="skeleton h-3 w-1/3"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else if (incidents().length === 0) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body items-center text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-base-content/15 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-base-content/60">Sin incidentes reportados</h3>
+        <p class="text-base-content/40 text-sm mt-1 max-w-sm">
+          Reporta incidentes como fugas, danos, ruidos u otros problemas en el condominio.
+        </p>
+        <button class="btn btn-primary btn-sm mt-4" (click)="onCreate()">
+          Reportar primer incidente
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Data -->
+  @else {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <!-- Desktop table -->
+        <div class="overflow-x-auto hidden md:block">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Titulo</th>
+                <th>Tipo</th>
+                <th>Reportado por</th>
+                <th>Asignado a</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+                <th class="w-28">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (incident of incidents(); track incident.id) {
+                <tr class="hover:bg-base-200/50 cursor-pointer" (click)="onView(incident)">
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded bg-error/10 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-error" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                        </svg>
+                      </div>
+                      <span class="font-medium">{{ incident.title }}</span>
+                    </div>
+                  </td>
+                  <td class="text-sm">{{ incident.incidentTypeName }}</td>
+                  <td class="text-sm">{{ incident.reportedByName }}</td>
+                  <td class="text-sm">{{ incident.assignedToName ?? '-' }}</td>
+                  <td>
+                    <span class="badge badge-sm" [class]="statusBadgeClass[incident.status] ?? 'badge-ghost'">
+                      {{ statusLabels[incident.status] ?? incident.status }}
+                    </span>
+                  </td>
+                  <td class="text-sm text-base-content/50">
+                    {{ incident.createdAt | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    <div class="flex gap-1" (click)="$event.stopPropagation()">
+                      <button
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Ver detalle"
+                        (click)="onView(incident)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                      </button>
+                      <button
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Editar"
+                        (click)="onEdit(incident)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        class="btn btn-ghost btn-xs btn-square text-error"
+                        title="Eliminar"
+                        (click)="onDeleteRequest(incident)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="md:hidden divide-y divide-base-300">
+          @for (incident of incidents(); track incident.id) {
+            <div class="p-4 active:bg-base-200/50" (click)="onView(incident)">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <p class="font-medium truncate">{{ incident.title }}</p>
+                  <p class="text-sm text-base-content/50 mt-0.5">{{ incident.incidentTypeName }}</p>
+                </div>
+                <span class="badge badge-sm shrink-0" [class]="statusBadgeClass[incident.status] ?? 'badge-ghost'">
+                  {{ statusLabels[incident.status] ?? incident.status }}
+                </span>
+              </div>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-sm text-base-content/60">
+                <span>Reportado: {{ incident.reportedByName }}</span>
+                <span>{{ incident.createdAt | date:'dd/MM/yyyy' }}</span>
+                @if (incident.assignedToName) {
+                  <span>Asignado: {{ incident.assignedToName }}</span>
+                }
+              </div>
+              <div class="flex gap-2 mt-3" (click)="$event.stopPropagation()">
+                <button class="btn btn-ghost btn-sm btn-square" title="Ver" (click)="onView(incident)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm btn-square" title="Editar" (click)="onEdit(incident)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm btn-square text-error" title="Eliminar" (click)="onDeleteRequest(incident)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="px-4 pb-4">
+          <app-pagination
+            [pageNumber]="pageNumber()"
+            [pageSize]="pageSize()"
+            [totalCount]="totalCount()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Form modal -->
+  <app-incident-form (saved)="onFormSaved()" />
+
+  <!-- Delete confirmation -->
+  <app-confirm-dialog
+    title="Eliminar incidente"
+    message="Esta seguro de que desea eliminar este incidente? Esta accion no se puede deshacer."
+    confirmText="Eliminar"
+    (confirmed)="onDeleteConfirmed()"
+  />
+</div>

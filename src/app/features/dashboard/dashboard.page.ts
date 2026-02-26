@@ -24,7 +24,7 @@ interface QuickAction {
   standalone: true,
   imports: [DatePipe],
   template: `
-    <div class="p-6">
+    <div class="p-4 md:p-6">
       <!-- Header with role badge -->
       <div class="mb-6">
         <div class="flex items-center gap-3 flex-wrap">
@@ -288,13 +288,13 @@ export class DashboardPage implements OnInit {
     {
       label: 'Anuncios',
       route: 'announcements',
-      disabled: true,
+      disabled: false,
       icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-base-content/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>',
     },
     {
       label: 'Incidentes',
       route: 'incidents',
-      disabled: true,
+      disabled: false,
       icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-base-content/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>',
     },
   ];
@@ -315,13 +315,13 @@ export class DashboardPage implements OnInit {
     {
       label: 'Anuncios',
       route: 'announcements',
-      disabled: true,
+      disabled: false,
       icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-base-content/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>',
     },
     {
       label: 'Incidentes',
       route: 'incidents',
-      disabled: true,
+      disabled: false,
       icon: '<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-base-content/60" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>',
     },
     {

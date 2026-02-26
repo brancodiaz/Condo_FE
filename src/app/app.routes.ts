@@ -24,6 +24,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'profile',
+        loadChildren: () =>
+          import('./features/profile/profile.routes').then(
+            (m) => m.PROFILE_ROUTES,
+          ),
+      },
+      {
         path: ':condoId',
         resolve: { condoContext: condoContextResolver },
         children: [
@@ -63,6 +70,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'announcements',
+            loadChildren: () =>
+              import('./features/announcements/announcements.routes').then(
+                (m) => m.ANNOUNCEMENTS_ROUTES,
+              ),
+          },
+          {
             path: 'common-areas',
             loadChildren: () =>
               import('./features/common-areas/common-areas.routes').then(
@@ -70,10 +84,24 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'incidents',
+            loadChildren: () =>
+              import('./features/incidents/incidents.routes').then(
+                (m) => m.INCIDENTS_ROUTES,
+              ),
+          },
+          {
             path: 'notifications',
             loadChildren: () =>
               import('./features/notifications/notifications.routes').then(
                 (m) => m.NOTIFICATIONS_ROUTES,
+              ),
+          },
+          {
+            path: 'settings',
+            loadComponent: () =>
+              import('./features/condos/pages/condo-settings/condo-settings.page').then(
+                (m) => m.CondoSettingsPage,
               ),
           },
           { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

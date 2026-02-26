@@ -1,0 +1,211 @@
+<div class="p-4 md:p-6">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-bold text-base-content">Anuncios</h1>
+      <p class="text-base-content/50 mt-1 text-sm sm:text-base">Comunicados y avisos del condominio</p>
+    </div>
+    <button class="btn btn-primary gap-2" (click)="onCreate()">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+      </svg>
+      <span class="hidden sm:inline">Nuevo anuncio</span>
+    </button>
+  </div>
+
+  <!-- Loading skeleton -->
+  @if (loading()) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <div class="overflow-x-auto hidden md:block">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Titulo</th>
+                <th>Contenido</th>
+                <th>Alcance</th>
+                <th>Autor</th>
+                <th>Fecha</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of [1, 2, 3, 4, 5]; track i) {
+                <tr>
+                  <td><div class="skeleton h-4 w-40"></div></td>
+                  <td><div class="skeleton h-4 w-48"></div></td>
+                  <td><div class="skeleton h-4 w-28"></div></td>
+                  <td><div class="skeleton h-4 w-32"></div></td>
+                  <td><div class="skeleton h-4 w-24"></div></td>
+                  <td><div class="skeleton h-4 w-16"></div></td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="md:hidden space-y-3 p-4">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="card bg-base-100 border border-base-300">
+              <div class="card-body p-4 space-y-2">
+                <div class="skeleton h-4 w-3/4"></div>
+                <div class="skeleton h-3 w-full"></div>
+                <div class="skeleton h-3 w-1/3"></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Empty state -->
+  @else if (announcements().length === 0) {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body items-center text-center py-16">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-base-content/15 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+        </svg>
+        <h3 class="text-lg font-semibold text-base-content/60">Sin anuncios registrados</h3>
+        <p class="text-base-content/40 text-sm mt-1 max-w-sm">
+          Publica anuncios y comunicados para informar a los residentes del condominio.
+        </p>
+        <button class="btn btn-primary btn-sm mt-4" (click)="onCreate()">
+          Publicar primer anuncio
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Data -->
+  @else {
+    <div class="card bg-base-100 border border-base-300 shadow-sm">
+      <div class="card-body p-0">
+        <!-- Desktop table -->
+        <div class="overflow-x-auto hidden md:block">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Titulo</th>
+                <th>Contenido</th>
+                <th>Alcance</th>
+                <th>Autor</th>
+                <th>Fecha</th>
+                <th class="w-24">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (announcement of announcements(); track announcement.id) {
+                <tr class="hover:bg-base-200/50">
+                  <td>
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 rounded bg-info/10 flex items-center justify-center shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
+                        </svg>
+                      </div>
+                      <span class="font-medium">{{ announcement.title }}</span>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="text-sm text-base-content/60 line-clamp-2 max-w-xs">
+                      {{ announcement.content }}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="badge badge-ghost badge-sm">
+                      {{ getScopeLabel(announcement.scope) }}
+                    </span>
+                    @if (announcement.blockName) {
+                      <p class="text-xs text-base-content/40 mt-0.5">{{ announcement.blockName }}</p>
+                    }
+                  </td>
+                  <td class="text-sm text-base-content/50">
+                    {{ announcement.authorName }}
+                  </td>
+                  <td class="text-sm text-base-content/50">
+                    {{ announcement.createdAt | date:'dd/MM/yyyy' }}
+                  </td>
+                  <td>
+                    <div class="flex gap-1">
+                      <button
+                        class="btn btn-ghost btn-xs btn-square"
+                        title="Editar"
+                        (click)="onEdit(announcement)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button
+                        class="btn btn-ghost btn-xs btn-square text-error"
+                        title="Eliminar"
+                        (click)="onDeleteRequest(announcement)"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="md:hidden divide-y divide-base-300">
+          @for (announcement of announcements(); track announcement.id) {
+            <div class="p-4">
+              <div class="flex items-start justify-between gap-2">
+                <p class="font-medium truncate flex-1 min-w-0">{{ announcement.title }}</p>
+                <span class="badge badge-ghost badge-sm shrink-0">{{ getScopeLabel(announcement.scope) }}</span>
+              </div>
+              <p class="text-sm text-base-content/60 line-clamp-2 mt-1">{{ announcement.content }}</p>
+              <div class="flex items-center justify-between mt-2 text-xs text-base-content/40">
+                <span>{{ announcement.authorName }}</span>
+                <span>{{ announcement.createdAt | date:'dd/MM/yyyy' }}</span>
+              </div>
+              @if (announcement.blockName) {
+                <p class="text-xs text-base-content/40 mt-1">Bloque: {{ announcement.blockName }}</p>
+              }
+              <div class="flex gap-2 mt-3">
+                <button class="btn btn-ghost btn-sm btn-square" title="Editar" (click)="onEdit(announcement)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm btn-square text-error" title="Eliminar" (click)="onDeleteRequest(announcement)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="px-4 pb-4">
+          <app-pagination
+            [pageNumber]="pageNumber()"
+            [pageSize]="pageSize()"
+            [totalCount]="totalCount()"
+            [totalPages]="totalPages()"
+            (pageChange)="onPageChange($event)"
+          />
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Form modal -->
+  <app-announcement-form (saved)="onFormSaved()" />
+
+  <!-- Delete confirmation -->
+  <app-confirm-dialog
+    title="Eliminar anuncio"
+    message="Esta seguro de que desea eliminar este anuncio? Esta accion no se puede deshacer."
+    confirmText="Eliminar"
+    (confirmed)="onDeleteConfirmed()"
+  />
+</div>

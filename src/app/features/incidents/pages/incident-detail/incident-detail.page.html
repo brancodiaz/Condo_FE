@@ -1,0 +1,198 @@
+<div class="p-4 md:p-6">
+  <!-- Back button -->
+  <button class="btn btn-ghost btn-sm gap-2 mb-4" (click)="goBack()">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+    </svg>
+    Volver a incidentes
+  </button>
+
+  @if (loading()) {
+    <div class="space-y-4">
+      <div class="skeleton h-8 w-64"></div>
+      <div class="skeleton h-40 w-full"></div>
+      <div class="skeleton h-60 w-full"></div>
+    </div>
+  } @else if (incident(); as inc) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Main info -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Incident info card -->
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
+          <div class="card-body">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <h1 class="text-xl font-bold text-base-content">{{ inc.title }}</h1>
+                <p class="text-sm text-base-content/50 mt-1">
+                  Tipo: <span class="font-medium">{{ inc.incidentTypeName }}</span>
+                </p>
+              </div>
+              <span class="badge" [class]="statusBadgeClass[inc.status] ?? 'badge-ghost'">
+                {{ statusLabels[inc.status] ?? inc.status }}
+              </span>
+            </div>
+
+            <div class="divider my-2"></div>
+
+            <p class="text-sm text-base-content whitespace-pre-wrap">{{ inc.description }}</p>
+
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
+              <div>
+                <p class="text-xs text-base-content/50">Reportado por</p>
+                <p class="text-sm font-medium">{{ inc.reportedByName }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-base-content/50">Asignado a</p>
+                <p class="text-sm font-medium">{{ inc.assignedToName ?? 'Sin asignar' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-base-content/50">Bloque</p>
+                <p class="text-sm font-medium">{{ inc.blockName ?? 'Todo el condominio' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-base-content/50">Fecha de reporte</p>
+                <p class="text-sm font-medium">{{ inc.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+              </div>
+              <div>
+                <p class="text-xs text-base-content/50">Visibilidad</p>
+                <p class="text-sm font-medium">{{ inc.isPublic ? 'Publico' : 'Privado' }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Timeline -->
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
+          <div class="card-body">
+            <h2 class="text-base font-semibold text-base-content mb-4">Historial de actividad</h2>
+
+            @if (interactions().length === 0) {
+              <p class="text-sm text-base-content/30 text-center py-4">Sin actividad registrada</p>
+            } @else {
+              <div class="space-y-4">
+                @for (interaction of interactions(); track interaction.id) {
+                  <div class="flex gap-3">
+                    <div class="flex flex-col items-center">
+                      <div class="w-8 h-8 rounded-full flex items-center justify-center shrink-0"
+                           [class]="interaction.newStatus ? 'bg-primary/10' : 'bg-base-200'">
+                        @if (interaction.newStatus) {
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                          </svg>
+                        } @else {
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-base-content/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                        }
+                      </div>
+                      <div class="w-px flex-1 bg-base-300 mt-1"></div>
+                    </div>
+                    <div class="pb-4 flex-1">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-sm font-medium text-base-content">{{ interaction.userName }}</span>
+                        <span class="text-xs text-base-content/40">{{ interaction.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
+                      </div>
+                      @if (interaction.oldStatus && interaction.newStatus) {
+                        <p class="text-sm text-base-content/70 mt-1">
+                          Cambio estado:
+                          <span class="badge badge-xs" [class]="statusBadgeClass[interaction.oldStatus] ?? 'badge-ghost'">
+                            {{ statusLabels[interaction.oldStatus] ?? interaction.oldStatus }}
+                          </span>
+                          <span class="mx-1">→</span>
+                          <span class="badge badge-xs" [class]="statusBadgeClass[interaction.newStatus] ?? 'badge-ghost'">
+                            {{ statusLabels[interaction.newStatus] ?? interaction.newStatus }}
+                          </span>
+                        </p>
+                      }
+                      @if (interaction.comment) {
+                        <p class="text-sm text-base-content/70 mt-1">{{ interaction.comment }}</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Add comment -->
+            <div class="divider my-2"></div>
+            <div class="flex gap-2">
+              <textarea
+                class="textarea textarea-bordered flex-1"
+                placeholder="Agregar un comentario..."
+                rows="2"
+                [(ngModel)]="newComment"
+              ></textarea>
+              <button
+                class="btn btn-primary btn-sm self-end"
+                [disabled]="commentLoading() || !newComment.trim()"
+                (click)="addComment()"
+              >
+                @if (commentLoading()) {
+                  <span class="loading loading-spinner loading-sm"></span>
+                } @else {
+                  Enviar
+                }
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar: Actions -->
+      <div class="space-y-6">
+        <!-- Status actions -->
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
+          <div class="card-body">
+            <h2 class="text-base font-semibold text-base-content mb-3">Cambiar estado</h2>
+            @if (getValidTransitions().length === 0) {
+              <p class="text-sm text-base-content/40">No hay transiciones disponibles</p>
+            } @else {
+              <div class="space-y-2">
+                @for (status of getValidTransitions(); track status) {
+                  <button
+                    class="btn btn-sm w-full"
+                    [class]="statusBadgeClass[status]?.replace('badge-', 'btn-') ?? 'btn-ghost'"
+                    [disabled]="statusLoading()"
+                    (click)="changeStatus(status)"
+                  >
+                    @if (statusLoading()) {
+                      <span class="loading loading-spinner loading-sm"></span>
+                    }
+                    {{ statusLabels[status] ?? status }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Info summary -->
+        <div class="card bg-base-100 border border-base-300 shadow-sm">
+          <div class="card-body">
+            <h2 class="text-base font-semibold text-base-content mb-3">Informacion</h2>
+            <div class="space-y-3">
+              <div class="flex justify-between text-sm">
+                <span class="text-base-content/50">Estado</span>
+                <span class="badge badge-sm" [class]="statusBadgeClass[inc.status] ?? 'badge-ghost'">
+                  {{ statusLabels[inc.status] ?? inc.status }}
+                </span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-base-content/50">Tipo</span>
+                <span class="text-base-content font-medium">{{ inc.incidentTypeName }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-base-content/50">Visibilidad</span>
+                <span class="text-base-content font-medium">{{ inc.isPublic ? 'Publico' : 'Privado' }}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-base-content/50">Interacciones</span>
+                <span class="text-base-content font-medium">{{ interactions().length }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
