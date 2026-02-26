@@ -11,7 +11,7 @@ import { ComboItem, Unit } from '../../models/unit.model';
   imports: [ReactiveFormsModule],
   template: `
     <dialog #dialog class="modal">
-      <div class="modal-box max-w-lg">
+      <div class="modal-box w-full max-w-lg">
         <h3 class="text-lg font-bold">{{ isEdit() ? 'Editar unidad' : 'Nueva unidad' }}</h3>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4 space-y-4">

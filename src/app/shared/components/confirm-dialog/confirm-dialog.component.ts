@@ -5,7 +5,7 @@ import { Component, ElementRef, input, output, viewChild } from '@angular/core';
   standalone: true,
   template: `
     <dialog #dialog class="modal">
-      <div class="modal-box">
+      <div class="modal-box w-full sm:max-w-lg">
         <h3 class="text-lg font-bold">{{ title() }}</h3>
         <p class="py-4 text-base-content/70">{{ message() }}</p>
         <div class="modal-action">

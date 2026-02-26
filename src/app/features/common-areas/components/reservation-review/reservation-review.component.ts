@@ -11,7 +11,7 @@ import { Reservation, RESERVATION_STATUS_LABELS, RESERVATION_STATUS_BADGE } from
   imports: [FormsModule, DatePipe],
   template: `
     <dialog #dialog class="modal">
-      <div class="modal-box max-w-lg">
+      <div class="modal-box w-full max-w-lg">
         <h3 class="text-lg font-bold">Detalle de reserva</h3>
 
         @if (reservation()) {

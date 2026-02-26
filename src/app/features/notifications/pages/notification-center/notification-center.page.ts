@@ -1,7 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { NotificationService } from '../../../../core/services/notification.service';
-import { AppNotification } from '../../models/notification.model';
+import { CondoContextService } from '../../../../core/services/condo-context.service';
+import { AppNotification, getNotificationRoute } from '../../models/notification.model';
 import { PaginationComponent } from '../../../../shared/components/pagination/pagination.component';
 
 @Component({
@@ -9,7 +11,7 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
   standalone: true,
   imports: [DatePipe, PaginationComponent],
   template: `
-    <div class="p-6">
+    <div class="p-4 md:p-6">
       <!-- Header -->
       <div class="flex items-center justify-between mb-6">
         <div>
@@ -110,6 +112,8 @@ import { PaginationComponent } from '../../../../shared/components/pagination/pa
 })
 export class NotificationCenterPage implements OnInit {
   readonly notificationService = inject(NotificationService);
+  private readonly router = inject(Router);
+  private readonly condoContext = inject(CondoContextService);
 
   readonly notifications = signal<AppNotification[]>([]);
   readonly loading = signal(false);
@@ -164,6 +168,13 @@ export class NotificationCenterPage implements OnInit {
           this.notifications.set(updated);
         },
       });
+    }
+
+    // Navigate to the referenced entity
+    const condoId = this.condoContext.currentCondoId();
+    if (condoId) {
+      const route = getNotificationRoute(notification, condoId);
+      if (route) this.router.navigate(route);
     }
   }
 

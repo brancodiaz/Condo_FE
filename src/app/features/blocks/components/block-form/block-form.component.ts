@@ -10,7 +10,7 @@ import { Block } from '../../models/block.model';
   imports: [ReactiveFormsModule],
   template: `
     <dialog #dialog class="modal">
-      <div class="modal-box">
+      <div class="modal-box w-full sm:max-w-lg">
         <h3 class="text-lg font-bold">{{ isEdit() ? 'Editar bloque' : 'Nuevo bloque' }}</h3>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4 space-y-4">

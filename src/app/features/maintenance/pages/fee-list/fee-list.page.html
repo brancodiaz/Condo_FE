@@ -1,4 +1,4 @@
-<div class="p-6">
+<div class="p-4 md:p-6">
   <!-- Tabs -->
   <app-maintenance-tabs />
 
@@ -6,7 +6,7 @@
   <div class="flex items-center justify-between mb-6">
     <div>
       <h1 class="text-2xl font-bold text-base-content">Cuotas de mantenimiento</h1>
-      <p class="text-base-content/50 mt-1">Configura las cuotas que se cobran a las unidades</p>
+      <p class="text-base-content/50 mt-1 text-sm sm:text-base">Configura las cuotas que se cobran a las unidades</p>
     </div>
     <button class="btn btn-primary gap-2" (click)="onCreate()">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -20,7 +20,7 @@
   @if (loading()) {
     <div class="card bg-base-100 border border-base-300 shadow-sm">
       <div class="card-body p-0">
-        <div class="overflow-x-auto">
+        <div class="overflow-x-auto hidden md:block">
           <table class="table">
             <thead>
               <tr>
@@ -46,6 +46,17 @@
             </tbody>
           </table>
         </div>
+        <div class="md:hidden space-y-3 p-4">
+          @for (i of [1, 2, 3]; track i) {
+            <div class="card bg-base-100 border border-base-300">
+              <div class="card-body p-4 space-y-2">
+                <div class="skeleton h-4 w-3/4"></div>
+                <div class="skeleton h-3 w-1/2"></div>
+                <div class="skeleton h-3 w-1/3"></div>
+              </div>
+            </div>
+          }
+        </div>
       </div>
     </div>
   }
@@ -68,11 +79,12 @@
     </div>
   }
 
-  <!-- Data table -->
+  <!-- Data -->
   @else {
     <div class="card bg-base-100 border border-base-300 shadow-sm">
       <div class="card-body p-0">
-        <div class="overflow-x-auto">
+        <!-- Desktop table -->
+        <div class="overflow-x-auto hidden md:block">
           <table class="table">
             <thead>
               <tr>
@@ -143,6 +155,47 @@
               }
             </tbody>
           </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="md:hidden divide-y divide-base-300">
+          @for (fee of fees(); track fee.id) {
+            <div class="p-4">
+              <div class="flex items-start justify-between gap-2">
+                <div class="min-w-0 flex-1">
+                  <p class="font-medium truncate">{{ fee.name }}</p>
+                  @if (fee.description) {
+                    <p class="text-xs text-base-content/40 truncate">{{ fee.description }}</p>
+                  }
+                </div>
+                <span class="font-mono font-medium text-sm shrink-0">{{ fee.amount | currency:'USD':'symbol':'1.2-2' }}</span>
+              </div>
+              <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-sm text-base-content/60">
+                <span>
+                  <span class="badge badge-ghost badge-sm">{{ getFrequencyLabel(fee.frequency) }}</span>
+                </span>
+                <span>{{ fee.blockName ?? 'Todo el condominio' }}</span>
+                <span class="col-span-2 text-xs text-base-content/40">
+                  Vigencia: {{ fee.effectiveFrom | date:'dd/MM/yyyy' }}
+                  @if (fee.effectiveTo) {
+                    - {{ fee.effectiveTo | date:'dd/MM/yyyy' }}
+                  }
+                </span>
+              </div>
+              <div class="flex gap-2 mt-3">
+                <button class="btn btn-ghost btn-sm btn-square" title="Editar" (click)="onEdit(fee)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button class="btn btn-ghost btn-sm btn-square text-error" title="Eliminar" (click)="onDeleteRequest(fee)">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          }
         </div>
 
         <div class="px-4 pb-4">

@@ -5,13 +5,13 @@ import { Component, computed, input, output } from '@angular/core';
   standalone: true,
   template: `
     @if (totalPages() > 1) {
-      <div class="flex items-center justify-between mt-4">
-        <p class="text-sm text-base-content/50">
-          Mostrando {{ startItem() }}-{{ endItem() }} de {{ totalCount() }}
+      <div class="flex flex-wrap items-center justify-between gap-2 mt-4">
+        <p class="text-xs sm:text-sm text-base-content/50">
+          <span class="hidden sm:inline">Mostrando </span>{{ startItem() }}-{{ endItem() }} de {{ totalCount() }}
         </p>
         <div class="join">
           <button
-            class="join-item btn btn-sm"
+            class="join-item btn btn-xs sm:btn-sm"
             [disabled]="pageNumber() <= 1"
             (click)="pageChange.emit(pageNumber() - 1)"
           >
@@ -19,10 +19,10 @@ import { Component, computed, input, output } from '@angular/core';
           </button>
           @for (page of visiblePages(); track page) {
             @if (page === -1) {
-              <button class="join-item btn btn-sm btn-disabled">...</button>
+              <button class="join-item btn btn-xs sm:btn-sm btn-disabled">...</button>
             } @else {
               <button
-                class="join-item btn btn-sm"
+                class="join-item btn btn-xs sm:btn-sm"
                 [class.btn-active]="page === pageNumber()"
                 (click)="pageChange.emit(page)"
               >
@@ -31,7 +31,7 @@ import { Component, computed, input, output } from '@angular/core';
             }
           }
           <button
-            class="join-item btn btn-sm"
+            class="join-item btn btn-xs sm:btn-sm"
             [disabled]="pageNumber() >= totalPages()"
             (click)="pageChange.emit(pageNumber() + 1)"
           >

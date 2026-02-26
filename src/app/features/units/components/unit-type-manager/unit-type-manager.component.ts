@@ -10,7 +10,7 @@ import { UnitType } from '../../models/unit.model';
   imports: [FormsModule],
   template: `
     <dialog #dialog class="modal">
-      <div class="modal-box max-w-md">
+      <div class="modal-box w-full max-w-md">
         <h3 class="text-lg font-bold mb-4">Tipos de unidad</h3>
 
         <!-- Add new -->

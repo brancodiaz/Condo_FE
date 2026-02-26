@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { NotificationService } from '../../../../core/services/notification.service';
 import { CondoContextService } from '../../../../core/services/condo-context.service';
-import { AppNotification } from '../../models/notification.model';
+import { AppNotification, getNotificationRoute } from '../../models/notification.model';
 
 @Component({
   selector: 'app-notification-bell',
@@ -21,7 +21,7 @@ import { AppNotification } from '../../models/notification.model';
           }
         </div>
       </div>
-      <div tabindex="0" class="dropdown-content z-50 bg-base-100 rounded-box shadow-lg border border-base-300 w-80 mt-1">
+      <div tabindex="0" class="dropdown-content z-50 bg-base-100 rounded-box shadow-lg border border-base-300 w-[calc(100vw-2rem)] sm:w-80 right-0 mt-1">
         <div class="p-3 border-b border-base-300 flex items-center justify-between">
           <span class="font-semibold text-sm">Notificaciones</span>
           @if (notificationService.unreadCount() > 0) {
@@ -100,6 +100,13 @@ export class NotificationBellComponent implements OnInit, OnDestroy {
 
     // Close dropdown by blurring
     (document.activeElement as HTMLElement)?.blur();
+
+    // Navigate to the referenced entity
+    const condoId = this.condoContext.currentCondoId();
+    if (condoId) {
+      const route = getNotificationRoute(notification, condoId);
+      if (route) this.router.navigate(route);
+    }
   }
 
   onViewAll(): void {
