@@ -6,6 +6,7 @@ import { MaintenancePaymentService } from '../../maintenance/services/maintenanc
 import { IncidentService } from '../../incidents/services/incident.service';
 import { ReservationService } from '../../common-areas/services/reservation.service';
 import { AnnouncementService } from '../../announcements/services/announcement.service';
+import { MemberService } from '../../members/services/member.service';
 import { AdminStats, OwnerStats, TenantStats } from '../models/dashboard.model';
 
 @Injectable({ providedIn: 'root' })
@@ -16,6 +17,7 @@ export class DashboardService {
   private readonly incidentService = inject(IncidentService);
   private readonly reservationService = inject(ReservationService);
   private readonly announcementService = inject(AnnouncementService);
+  private readonly memberService = inject(MemberService);
 
   loadAdminStats(): Observable<AdminStats> {
     return forkJoin({
@@ -24,6 +26,10 @@ export class DashboardService {
         catchError(() => of(-1)),
       ),
       blocks: this.blockService.getAll(1, 1).pipe(
+        map(r => r.totalCount),
+        catchError(() => of(-1)),
+      ),
+      members: this.memberService.getMembers(1, 1).pipe(
         map(r => r.totalCount),
         catchError(() => of(-1)),
       ),
@@ -36,9 +42,10 @@ export class DashboardService {
         catchError(() => of(-1)),
       ),
     }).pipe(
-      map(({ units, blocks, pendingPayments, openIncidents }) => ({
+      map(({ units, blocks, members, pendingPayments, openIncidents }) => ({
         totalUnits: units,
         totalBlocks: blocks,
+        totalMembers: members,
         pendingPayments,
         openIncidents,
       })),

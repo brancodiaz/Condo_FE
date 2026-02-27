@@ -1,6 +1,7 @@
 export interface AdminStats {
   totalUnits: number;
   totalBlocks: number;
+  totalMembers: number;
   pendingPayments: number;
   openIncidents: number;
 }
