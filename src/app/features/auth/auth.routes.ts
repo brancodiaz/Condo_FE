@@ -36,4 +36,11 @@ export const AUTH_ROUTES: Routes = [
         (m) => m.VerifyEmailPage,
       ),
   },
+  {
+    path: 'accept-invitation',
+    loadComponent: () =>
+      import('./pages/accept-invitation/accept-invitation.page').then(
+        (m) => m.AcceptInvitationPage,
+      ),
+  },
 ];

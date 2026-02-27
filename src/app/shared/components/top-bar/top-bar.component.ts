@@ -87,7 +87,7 @@ import { NotificationBellComponent } from '../../../features/notifications/compo
             <li class="menu-title px-4 py-2">
               <span class="text-xs text-base-content/50">{{ userEmail() }}</span>
             </li>
-            <li><a class="text-base-content/40 cursor-not-allowed">Mi perfil</a></li>
+            <li><a routerLink="/condos/profile">Mi perfil</a></li>
             <div class="divider my-0"></div>
             <li><a (click)="authService.logout()" class="text-error">Cerrar sesion</a></li>
           </ul>

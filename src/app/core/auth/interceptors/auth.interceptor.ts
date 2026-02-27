@@ -15,6 +15,8 @@ const PUBLIC_PATHS = [
   '/auth/reset-password',
   '/auth/verify-email',
   '/auth/resend-verification-email',
+  '/invitations/validate',
+  '/invitations/accept',
 ];
 
 function isPublicUrl(url: string): boolean {

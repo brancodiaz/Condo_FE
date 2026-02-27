@@ -1,0 +1,175 @@
+<div class="min-h-screen flex items-center justify-center bg-base-200 px-4">
+  <div class="card bg-base-100 w-full max-w-md shadow-xl">
+    <div class="card-body">
+
+      @if (validating()) {
+        <div class="flex flex-col items-center py-8">
+          <span class="loading loading-spinner loading-lg text-primary"></span>
+          <p class="mt-4 text-base-content/60">Validando invitacion...</p>
+        </div>
+      } @else if (validationError()) {
+        <div class="flex flex-col items-center py-8">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-error/50 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+          <h3 class="text-lg font-semibold text-base-content/70">Invitacion no valida</h3>
+          <p class="text-sm text-base-content/50 text-center mt-2">{{ validationError() }}</p>
+          <a routerLink="/auth/login" class="btn btn-primary btn-sm mt-6">Ir a iniciar sesion</a>
+        </div>
+      } @else if (success()) {
+        <div class="flex flex-col items-center py-8">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-success/50 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          @if (invitation()?.isExistingUser) {
+            <h3 class="text-lg font-semibold">Ya tienes cuenta</h3>
+            <p class="text-sm text-base-content/50 text-center mt-2">
+              Has sido agregado a <strong>{{ invitation()?.condominiumName }}</strong> como <strong>{{ invitation()?.roleName }}</strong>.
+              Inicia sesion para acceder.
+            </p>
+          } @else {
+            <h3 class="text-lg font-semibold">Registro exitoso</h3>
+            <p class="text-sm text-base-content/50 text-center mt-2">
+              Tu cuenta ha sido creada y ya perteneces a <strong>{{ invitation()?.condominiumName }}</strong>.
+              Revisa tu correo para verificar tu cuenta.
+            </p>
+          }
+          <a routerLink="/auth/login" class="btn btn-primary btn-sm mt-6">Iniciar sesion</a>
+        </div>
+      } @else {
+        <h2 class="card-title text-2xl font-bold justify-center mb-2">Aceptar invitacion</h2>
+
+        <div role="alert" class="alert alert-info mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <p class="text-sm">
+              Has sido invitado a <strong>{{ invitation()?.condominiumName }}</strong>
+              como <strong>{{ invitation()?.roleName }}</strong>.
+            </p>
+            <p class="text-xs text-base-content/50 mt-1">Crea tu cuenta para aceptar la invitacion.</p>
+          </div>
+        </div>
+
+        @if (errorMessage()) {
+          <div role="alert" class="alert alert-error mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="form-control">
+              <label class="label" for="firstName"><span class="label-text">Nombre</span></label>
+              <input
+                id="firstName"
+                type="text"
+                formControlName="firstName"
+                class="input input-bordered w-full"
+                [class.input-error]="form.controls.firstName.touched && form.controls.firstName.invalid"
+                placeholder="Juan"
+                autocomplete="given-name"
+              />
+              @if (form.controls.firstName.touched && form.controls.firstName.hasError('required')) {
+                <label class="label"><span class="label-text-alt text-error">Obligatorio</span></label>
+              }
+            </div>
+
+            <div class="form-control">
+              <label class="label" for="lastName"><span class="label-text">Apellido</span></label>
+              <input
+                id="lastName"
+                type="text"
+                formControlName="lastName"
+                class="input input-bordered w-full"
+                [class.input-error]="form.controls.lastName.touched && form.controls.lastName.invalid"
+                placeholder="Perez"
+                autocomplete="family-name"
+              />
+              @if (form.controls.lastName.touched && form.controls.lastName.hasError('required')) {
+                <label class="label"><span class="label-text-alt text-error">Obligatorio</span></label>
+              }
+            </div>
+          </div>
+
+          <div class="form-control">
+            <label class="label"><span class="label-text">Correo electronico</span></label>
+            <input
+              type="email"
+              class="input input-bordered w-full"
+              [value]="invitation()?.email"
+              disabled
+            />
+            <label class="label"><span class="label-text-alt text-base-content/40">El correo esta asociado a la invitacion</span></label>
+          </div>
+
+          <div class="form-control">
+            <label class="label" for="password"><span class="label-text">Contrasena</span></label>
+            <input
+              id="password"
+              type="password"
+              formControlName="password"
+              class="input input-bordered w-full"
+              [class.input-error]="form.controls.password.touched && form.controls.password.invalid"
+              placeholder="Crea una contrasena segura"
+              autocomplete="new-password"
+            />
+            @if (form.controls.password.value) {
+              <div class="mt-2">
+                <div class="flex gap-1">
+                  @for (i of [1, 2, 3, 4, 5]; track i) {
+                    <div class="h-1 flex-1 rounded-full {{ i <= passwordStrength() ? strengthColor() : 'bg-base-300' }}"></div>
+                  }
+                </div>
+                <span class="text-xs text-base-content/60 mt-1">{{ strengthLabel() }}</span>
+              </div>
+            }
+            @if (form.controls.password.touched && form.controls.password.hasError('required')) {
+              <label class="label"><span class="label-text-alt text-error">La contrasena es obligatoria</span></label>
+            } @else if (form.controls.password.touched && form.controls.password.hasError('strongPassword')) {
+              <label class="label"><span class="label-text-alt text-error">Debe tener 8+ caracteres con mayuscula, minuscula, numero y caracter especial</span></label>
+            }
+          </div>
+
+          <div class="form-control">
+            <label class="label" for="passwordConfirmation"><span class="label-text">Confirmar contrasena</span></label>
+            <input
+              id="passwordConfirmation"
+              type="password"
+              formControlName="passwordConfirmation"
+              class="input input-bordered w-full"
+              [class.input-error]="form.controls.passwordConfirmation.touched && form.controls.passwordConfirmation.invalid"
+              placeholder="Confirma tu contrasena"
+              autocomplete="new-password"
+            />
+            @if (form.controls.passwordConfirmation.touched && form.controls.passwordConfirmation.hasError('required')) {
+              <label class="label"><span class="label-text-alt text-error">Confirma tu contrasena</span></label>
+            } @else if (form.controls.passwordConfirmation.touched && form.controls.passwordConfirmation.hasError('passwordMismatch')) {
+              <label class="label"><span class="label-text-alt text-error">Las contrasenas no coinciden</span></label>
+            }
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-full"
+            [disabled]="loading()"
+          >
+            @if (loading()) {
+              <span class="loading loading-spinner loading-sm"></span>
+            }
+            Crear cuenta y aceptar
+          </button>
+        </form>
+
+        <p class="text-center text-sm mt-4">
+          ¿Ya tienes una cuenta?
+          <a routerLink="/auth/login" class="link link-primary">Inicia sesion</a>
+        </p>
+      }
+    </div>
+  </div>
+</div>

@@ -56,6 +56,13 @@ export const routes: Routes = [
               ),
           },
           {
+            path: 'members',
+            loadChildren: () =>
+              import('./features/members/members.routes').then(
+                (m) => m.MEMBERS_ROUTES,
+              ),
+          },
+          {
             path: 'maintenance',
             loadChildren: () =>
               import('./features/maintenance/maintenance.routes').then(
