@@ -30,6 +30,15 @@ export class ThemeService {
     }
   }
 
+  setTheme(theme: 'cupcake' | 'dark'): void {
+    const isDark = theme === 'dark';
+    this.darkMode.set(isDark);
+    this.applyTheme(theme);
+    if (this.isBrowser) {
+      localStorage.setItem(this.STORAGE_KEY, theme);
+    }
+  }
+
   private applyTheme(theme: Theme): void {
     if (this.isBrowser) {
       document.documentElement.setAttribute('data-theme', theme);

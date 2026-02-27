@@ -3,6 +3,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ProfileService } from '../services/profile.service';
 import { AuthService } from '../../../core/auth/services/auth.service';
+import { ThemeService } from '../../../core/services/theme.service';
 import { ToastService } from '../../../shared/services/toast.service';
 import { UserProfileResponse } from '../models/profile.model';
 import {
@@ -86,7 +87,7 @@ import { DatePipe } from '@angular/common';
                   <input
                     id="profilePhone"
                     type="tel"
-                    formControlName="phone"
+                    formControlName="phoneNumber"
                     class="input input-bordered w-full"
                   />
                 </div>
@@ -157,85 +158,113 @@ import { DatePipe } from '@angular/common';
           </div>
         </div>
 
-        <!-- Change password -->
+        <!-- Preferences -->
         <div class="card bg-base-100 border border-base-300 mb-6">
           <div class="card-body">
-            <h2 class="card-title text-base">Seguridad</h2>
-            <p class="text-sm text-base-content/60">Cambiar la contrasena de tu cuenta.</p>
-
-            <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="mt-4 space-y-4">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div class="form-control md:col-span-2">
-                  <label class="label" for="currentPassword">
-                    <span class="label-text">Contrasena actual</span>
-                  </label>
-                  <input
-                    id="currentPassword"
-                    type="password"
-                    formControlName="currentPassword"
-                    class="input input-bordered w-full max-w-md"
-                    [class.input-error]="passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.invalid"
-                  />
-                  @if (passwordForm.controls.currentPassword.touched && passwordForm.controls.currentPassword.hasError('required')) {
-                    <label class="label">
-                      <span class="label-text-alt text-error">La contrasena actual es obligatoria</span>
-                    </label>
-                  }
-                </div>
-
-                <div class="form-control">
-                  <label class="label" for="newPassword">
-                    <span class="label-text">Nueva contrasena</span>
-                  </label>
-                  <input
-                    id="newPassword"
-                    type="password"
-                    formControlName="newPassword"
-                    class="input input-bordered w-full"
-                    [class.input-error]="passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid"
-                  />
-                  @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.hasError('required')) {
-                    <label class="label">
-                      <span class="label-text-alt text-error">La nueva contrasena es obligatoria</span>
-                    </label>
-                  }
-                  @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.hasError('strongPassword')) {
-                    <label class="label">
-                      <span class="label-text-alt text-error">Minimo 8 caracteres, mayuscula, minuscula, numero y caracter especial</span>
-                    </label>
-                  }
-                </div>
-
-                <div class="form-control">
-                  <label class="label" for="confirmPassword">
-                    <span class="label-text">Confirmar contrasena</span>
-                  </label>
-                  <input
-                    id="confirmPassword"
-                    type="password"
-                    formControlName="confirmPassword"
-                    class="input input-bordered w-full"
-                    [class.input-error]="passwordForm.controls.confirmPassword.touched && passwordForm.controls.confirmPassword.invalid"
-                  />
-                  @if (passwordForm.controls.confirmPassword.touched && passwordForm.controls.confirmPassword.hasError('passwordMismatch')) {
-                    <label class="label">
-                      <span class="label-text-alt text-error">Las contrasenas no coinciden</span>
-                    </label>
-                  }
-                </div>
+            <h2 class="card-title text-base">Preferencias</h2>
+            <div class="flex items-center justify-between py-2">
+              <div>
+                <p class="text-sm font-medium">Tema oscuro</p>
+                <p class="text-xs text-base-content/50">Cambiar entre modo claro y oscuro</p>
               </div>
-
-              <div class="flex justify-end pt-2">
-                <button type="submit" class="btn btn-primary" [disabled]="savingPassword() || passwordForm.pristine">
-                  @if (savingPassword()) {
-                    <span class="loading loading-spinner loading-sm"></span>
-                  }
-                  Cambiar contrasena
-                </button>
-              </div>
-            </form>
+              <input type="checkbox" class="toggle toggle-primary"
+                [checked]="themeService.darkMode()"
+                (change)="onToggleTheme()" />
+            </div>
           </div>
         </div>
+
+        <!-- Change password -->
+        @if (profile()!.hasLocalLogin) {
+          <div class="card bg-base-100 border border-base-300 mb-6">
+            <div class="card-body">
+              <h2 class="card-title text-base">Seguridad</h2>
+              <p class="text-sm text-base-content/60">Cambiar la contrasena de tu cuenta.</p>
+
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="mt-4 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div class="form-control md:col-span-2">
+                    <label class="label" for="oldPassword">
+                      <span class="label-text">Contrasena actual</span>
+                    </label>
+                    <input
+                      id="oldPassword"
+                      type="password"
+                      formControlName="oldPassword"
+                      class="input input-bordered w-full max-w-md"
+                      [class.input-error]="passwordForm.controls.oldPassword.touched && passwordForm.controls.oldPassword.invalid"
+                    />
+                    @if (passwordForm.controls.oldPassword.touched && passwordForm.controls.oldPassword.hasError('required')) {
+                      <label class="label">
+                        <span class="label-text-alt text-error">La contrasena actual es obligatoria</span>
+                      </label>
+                    }
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label" for="newPassword">
+                      <span class="label-text">Nueva contrasena</span>
+                    </label>
+                    <input
+                      id="newPassword"
+                      type="password"
+                      formControlName="newPassword"
+                      class="input input-bordered w-full"
+                      [class.input-error]="passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.invalid"
+                    />
+                    @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.hasError('required')) {
+                      <label class="label">
+                        <span class="label-text-alt text-error">La nueva contrasena es obligatoria</span>
+                      </label>
+                    }
+                    @if (passwordForm.controls.newPassword.touched && passwordForm.controls.newPassword.hasError('strongPassword')) {
+                      <label class="label">
+                        <span class="label-text-alt text-error">Minimo 8 caracteres, mayuscula, minuscula, numero y caracter especial</span>
+                      </label>
+                    }
+                  </div>
+
+                  <div class="form-control">
+                    <label class="label" for="confirmPassword">
+                      <span class="label-text">Confirmar contrasena</span>
+                    </label>
+                    <input
+                      id="confirmPassword"
+                      type="password"
+                      formControlName="confirmPassword"
+                      class="input input-bordered w-full"
+                      [class.input-error]="passwordForm.controls.confirmPassword.touched && passwordForm.controls.confirmPassword.invalid"
+                    />
+                    @if (passwordForm.controls.confirmPassword.touched && passwordForm.controls.confirmPassword.hasError('passwordMismatch')) {
+                      <label class="label">
+                        <span class="label-text-alt text-error">Las contrasenas no coinciden</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+
+                <div class="flex justify-end pt-2">
+                  <button type="submit" class="btn btn-primary" [disabled]="savingPassword() || passwordForm.pristine">
+                    @if (savingPassword()) {
+                      <span class="loading loading-spinner loading-sm"></span>
+                    }
+                    Cambiar contrasena
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        } @else {
+          <div class="card bg-base-100 border border-base-300 mb-6">
+            <div class="card-body">
+              <h2 class="card-title text-base">Seguridad</h2>
+              <div class="alert alert-info mt-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>Tu cuenta utiliza autenticacion de Google. No necesitas gestionar una contrasena.</span>
+              </div>
+            </div>
+          </div>
+        }
 
         <!-- Danger zone -->
         <div class="card bg-base-100 border border-error/30">
@@ -274,6 +303,7 @@ export class ProfilePage implements OnInit {
   private readonly profileService = inject(ProfileService);
   private readonly authService = inject(AuthService);
   private readonly toast = inject(ToastService);
+  readonly themeService = inject(ThemeService);
 
   readonly profile = signal<UserProfileResponse | null>(null);
   readonly loading = signal(true);
@@ -286,7 +316,7 @@ export class ProfilePage implements OnInit {
     firstName: ['', [Validators.required, Validators.maxLength(100)]],
     middleName: [''],
     lastName: ['', [Validators.required, Validators.maxLength(100)]],
-    phone: [''],
+    phoneNumber: [''],
     dateOfBirth: [''],
     documentType: [''],
     documentId: [''],
@@ -294,7 +324,7 @@ export class ProfilePage implements OnInit {
 
   readonly passwordForm = this.fb.nonNullable.group(
     {
-      currentPassword: ['', [Validators.required]],
+      oldPassword: ['', [Validators.required]],
       newPassword: ['', [Validators.required, strongPasswordValidator()]],
       confirmPassword: ['', [Validators.required]],
     },
@@ -314,12 +344,17 @@ export class ProfilePage implements OnInit {
           firstName: profile.firstName,
           middleName: profile.middleName ?? '',
           lastName: profile.lastName,
-          phone: profile.phone ?? '',
+          phoneNumber: profile.phoneNumber ?? '',
           dateOfBirth: profile.dateOfBirth ?? '',
           documentType: profile.documentType ?? '',
           documentId: profile.documentId ?? '',
         });
         this.profileForm.markAsPristine();
+
+        if (profile.theme === 'cupcake' || profile.theme === 'dark') {
+          this.themeService.setTheme(profile.theme);
+        }
+
         this.loading.set(false);
       },
       error: () => {
@@ -343,7 +378,7 @@ export class ProfilePage implements OnInit {
         firstName: data.firstName,
         middleName: data.middleName || null,
         lastName: data.lastName,
-        phone: data.phone || null,
+        phoneNumber: data.phoneNumber || null,
         dateOfBirth: data.dateOfBirth || null,
         documentType: data.documentType || null,
         documentId: data.documentId || null,
@@ -362,6 +397,12 @@ export class ProfilePage implements OnInit {
       });
   }
 
+  onToggleTheme(): void {
+    this.themeService.toggle();
+    const theme = this.themeService.darkMode() ? 'dark' : 'cupcake';
+    this.profileService.updateTheme(theme).subscribe();
+  }
+
   onChangePassword(): void {
     if (this.passwordForm.invalid) {
       this.passwordForm.markAllAsTouched();
@@ -373,7 +414,7 @@ export class ProfilePage implements OnInit {
 
     this.profileService
       .changePassword({
-        currentPassword: data.currentPassword,
+        oldPassword: data.oldPassword,
         newPassword: data.newPassword,
         confirmPassword: data.confirmPassword,
       })

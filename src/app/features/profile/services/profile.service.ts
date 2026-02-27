@@ -4,7 +4,6 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import {
   ChangePasswordRequest,
-  UpdatePreferencesRequest,
   UpdateProfileRequest,
   UserProfileResponse,
 } from '../models/profile.model';
@@ -26,8 +25,8 @@ export class ProfileService {
     return this.http.post<void>(`${this.apiUrl}/me/change-password`, request);
   }
 
-  updatePreferences(request: UpdatePreferencesRequest): Observable<void> {
-    return this.http.patch<void>(`${this.apiUrl}/me/preferences`, request);
+  updateTheme(theme: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/me/theme`, { theme });
   }
 
   deleteAccount(): Observable<void> {

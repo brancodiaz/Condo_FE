@@ -4,11 +4,13 @@ export interface UserProfileResponse {
   middleName: string | null;
   lastName: string;
   email: string;
-  phone: string | null;
+  countryCodePhone: string | null;
+  phoneNumber: string | null;
   dateOfBirth: string | null;
   documentType: string | null;
   documentId: string | null;
-  themePreference: string | null;
+  hasLocalLogin: boolean;
+  theme: string | null;
   createdAt: string;
 }
 
@@ -16,18 +18,15 @@ export interface UpdateProfileRequest {
   firstName: string;
   middleName?: string | null;
   lastName: string;
-  phone?: string | null;
+  countryCodePhone?: string | null;
+  phoneNumber?: string | null;
   dateOfBirth?: string | null;
   documentType?: string | null;
   documentId?: string | null;
 }
 
 export interface ChangePasswordRequest {
-  currentPassword: string;
+  oldPassword: string;
   newPassword: string;
   confirmPassword: string;
-}
-
-export interface UpdatePreferencesRequest {
-  themePreference: string;
 }
