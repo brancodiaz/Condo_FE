@@ -17,6 +17,7 @@ export interface CondominiumDetailed {
   subscriptionExpiresAt: string | null;
   roleId: string;
   roleName: string;
+  includeBlocks: boolean;
 }
 
 export interface CondominiumResponse {

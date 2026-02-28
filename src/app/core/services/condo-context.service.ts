@@ -8,6 +8,9 @@ export class CondoContextService {
   readonly currentRole = computed(() => this.currentCondo()?.roleId ?? null);
   readonly currentRoleName = computed(() => this.currentCondo()?.roleName ?? null);
 
+  /** True if the condominium uses blocks */
+  readonly hasBlocks = computed(() => this.currentCondo()?.includeBlocks ?? false);
+
   /** True if user has ADMIN or board roles (PRESIDENT, SECRETARY, TREASURER) */
   readonly isAdmin = computed(() => {
     const role = this.currentRole();

@@ -1,9 +1,10 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { PaginatedResponse } from '../../condos/models/condominium.model';
 import { Block, CreateBlockRequest, UpdateBlockRequest } from '../models/block.model';
+import { ComboItem } from '../../units/models/unit.model';
 
 @Injectable({ providedIn: 'root' })
 export class BlockService {
@@ -32,5 +33,9 @@ export class BlockService {
 
   delete(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  getComboList(): Observable<ComboItem<string>[]> {
+    return this.http.get<ComboItem<string>[]>(`${this.apiUrl}/combo-list`);
   }
 }

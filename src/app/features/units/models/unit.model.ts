@@ -6,6 +6,7 @@ export interface Unit {
   floor: number;
   rooms: number;
   squareMeters: number;
+  blockId: string;
 }
 
 export interface UnitSummary {
@@ -24,6 +25,7 @@ export interface CreateUnitRequest {
   floor: number;
   rooms: number;
   squareMeters: number;
+  blockId?: string;
 }
 
 export interface UpdateUnitRequest {
@@ -33,6 +35,7 @@ export interface UpdateUnitRequest {
   floor: number;
   rooms: number;
   squareMeters: number;
+  blockId?: string;
 }
 
 export interface UnitType {

@@ -1,7 +1,9 @@
-import { Component, ElementRef, inject, OnInit, output, signal, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, OnInit, output, signal, viewChild } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { UnitService } from '../../services/unit.service';
 import { UnitTypeService } from '../../services/unit-type.service';
+import { BlockService } from '../../../blocks/services/block.service';
+import { CondoContextService } from '../../../../core/services/condo-context.service';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { ComboItem, Unit } from '../../models/unit.model';
 
@@ -15,6 +17,31 @@ import { ComboItem, Unit } from '../../models/unit.model';
         <h3 class="text-lg font-bold">{{ isEdit() ? 'Editar unidad' : 'Nueva unidad' }}</h3>
 
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="mt-4 space-y-4">
+          <!-- Block (only when condo has blocks) -->
+          @if (hasBlocks()) {
+            <div class="form-control">
+              <label class="label" for="unitBlock">
+                <span class="label-text">Bloque</span>
+              </label>
+              <select
+                id="unitBlock"
+                formControlName="blockId"
+                class="select select-bordered w-full"
+                [class.select-error]="form.controls.blockId.touched && form.controls.blockId.invalid"
+              >
+                <option value="" disabled>Seleccione un bloque</option>
+                @for (block of blocks(); track block.id) {
+                  <option [value]="block.id">{{ block.value }}</option>
+                }
+              </select>
+              @if (form.controls.blockId.touched && form.controls.blockId.hasError('required')) {
+                <label class="label">
+                  <span class="label-text-alt text-error">Debe seleccionar un bloque</span>
+                </label>
+              }
+            </div>
+          }
+
           <!-- Name -->
           <div class="form-control">
             <label class="label" for="unitName">
@@ -131,6 +158,8 @@ export class UnitFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly unitService = inject(UnitService);
   private readonly unitTypeService = inject(UnitTypeService);
+  private readonly blockService = inject(BlockService);
+  private readonly condoContext = inject(CondoContextService);
   private readonly toast = inject(ToastService);
 
   readonly saved = output<void>();
@@ -138,12 +167,15 @@ export class UnitFormComponent implements OnInit {
   readonly errorMessage = signal('');
   readonly isEdit = signal(false);
   readonly unitTypes = signal<ComboItem[]>([]);
+  readonly blocks = signal<ComboItem<string>[]>([]);
+  readonly hasBlocks = computed(() => this.condoContext.hasBlocks());
 
   private editId: number | null = null;
   private readonly dialogRef = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
   readonly form = this.fb.nonNullable.group({
     name: ['', [Validators.required, Validators.maxLength(100)]],
+    blockId: [''],
     unitTypeId: [0, [Validators.required, Validators.min(1)]],
     floor: [0],
     rooms: [0],
@@ -161,12 +193,33 @@ export class UnitFormComponent implements OnInit {
     });
   }
 
+  private loadBlocks(): void {
+    this.blockService.getComboList().subscribe({
+      next: (blocks) => this.blocks.set(blocks),
+      error: () => this.toast.error('Error al cargar bloques'),
+    });
+  }
+
+  private updateBlockValidators(): void {
+    const blockCtrl = this.form.controls.blockId;
+    if (this.hasBlocks()) {
+      blockCtrl.setValidators([Validators.required]);
+    } else {
+      blockCtrl.clearValidators();
+    }
+    blockCtrl.updateValueAndValidity();
+  }
+
   openCreate(): void {
     this.isEdit.set(false);
     this.editId = null;
-    this.form.reset({ name: '', unitTypeId: 0, floor: 0, rooms: 0, squareMeters: 0 });
+    this.form.reset({ name: '', blockId: '', unitTypeId: 0, floor: 0, rooms: 0, squareMeters: 0 });
     this.errorMessage.set('');
     this.loadUnitTypes();
+    this.updateBlockValidators();
+    if (this.hasBlocks()) {
+      this.loadBlocks();
+    }
     this.dialogRef().nativeElement.showModal();
   }
 
@@ -176,11 +229,16 @@ export class UnitFormComponent implements OnInit {
     this.errorMessage.set('');
     this.loading.set(true);
     this.loadUnitTypes();
+    this.updateBlockValidators();
+    if (this.hasBlocks()) {
+      this.loadBlocks();
+    }
 
     this.unitService.getById(unitId).subscribe({
       next: (unit: Unit) => {
         this.form.patchValue({
           name: unit.name,
+          blockId: unit.blockId ?? '',
           unitTypeId: unit.unitTypeId,
           floor: unit.floor,
           rooms: unit.rooms,
@@ -212,6 +270,18 @@ export class UnitFormComponent implements OnInit {
     this.errorMessage.set('');
     const raw = this.form.getRawValue();
 
+    const payload: any = {
+      name: raw.name,
+      unitTypeId: raw.unitTypeId,
+      floor: raw.floor,
+      rooms: raw.rooms,
+      squareMeters: raw.squareMeters,
+    };
+
+    if (this.hasBlocks() && raw.blockId) {
+      payload.blockId = raw.blockId;
+    }
+
     const onSuccess = () => {
       this.loading.set(false);
       this.toast.success(this.isEdit() ? 'Unidad actualizada' : 'Unidad creada');
@@ -225,9 +295,9 @@ export class UnitFormComponent implements OnInit {
     };
 
     if (this.isEdit()) {
-      this.unitService.update(this.editId!, { id: this.editId!, ...raw }).subscribe({ next: onSuccess, error: onError });
+      this.unitService.update(this.editId!, { id: this.editId!, ...payload }).subscribe({ next: onSuccess, error: onError });
     } else {
-      this.unitService.create(raw).subscribe({ next: onSuccess, error: onError });
+      this.unitService.create(payload).subscribe({ next: onSuccess, error: onError });
     }
   }
 }
